@@ -58,8 +58,8 @@ const QLatin1String THEME_KEY = QLatin1String("theme");
  */
 KeyboardSettings::KeyboardSettings(QObject *parent) :
     QObject(parent)
-  , m_settings(new QGSettings("org.maliit.keyboard.maliit",
-                              "/org/maliit/keyboard/maliit/", this))
+  , m_settings(new QGSettings("org.maliit.keyboard2.maliit",
+                              "/org/maliit/keyboard2/maliit/", this))
 {
     QObject::connect(m_settings, &QGSettings::changed,
                      this, &KeyboardSettings::settingUpdated);

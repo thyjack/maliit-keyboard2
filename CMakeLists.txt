@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(maliit-keyboard VERSION 2.3.1)
+project(maliit-keyboard2 VERSION 2.3.1)
 
 option(enable-hunspell "Use hunspell for error correction (maliit-keyboard-plugin only)" ON)
 option(enable-tests "Build tests" ON)
@@ -175,9 +175,9 @@ set(MALIIT_KEYBOARD_SOURCES
         src/plugin/plugin.h
         src/keyboard/keyboard.cpp)
 
-add_executable(maliit-keyboard ${MALIIT_KEYBOARD_SOURCES})
-target_link_libraries(maliit-keyboard maliit-keyboard-common)
-target_compile_definitions(maliit-keyboard PRIVATE ${maliit-keyboard-definitions})
+add_executable(maliit-keyboard2 ${MALIIT_KEYBOARD_SOURCES})
+target_link_libraries(maliit-keyboard2 maliit-keyboard-common)
+target_compile_definitions(maliit-keyboard2 PRIVATE ${maliit-keyboard-definitions})
 
 # TODO install westernlanguagesplugin.h into "$${MALIIT_PLUGINS_DATA_DIR}/com/ubuntu/include"
 
@@ -357,9 +357,9 @@ endif()
 # Installation
 
 install(FILES COPYING COPYING.BSD README.md
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/maliit-keyboard)
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/maliit-keyboard2)
 
-install(TARGETS maliit-keyboard-plugin maliit-keyboard
+install(TARGETS maliit-keyboard-plugin maliit-keyboard2
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/maliit/plugins
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
@@ -370,12 +370,12 @@ install(FILES qml/ActionsToolbar.qml qml/FloatingActions.qml qml/Keyboard.qml qm
 
 install(DIRECTORY data/devices
         DESTINATION ${MALIIT_KEYBOARD_DATA_DIR})
-install(FILES data/schemas/org.maliit.keyboard.maliit.gschema.xml
+install(FILES data/schemas/org.maliit.keyboard2.maliit.gschema.xml
         DESTINATION share/glib-2.0/schemas/)
 
-install(FILES com.github.maliit.keyboard.desktop
+install(FILES com.github.maliit.keyboard2.desktop
         DESTINATION share/applications)
-install(FILES com.github.maliit.keyboard.metainfo.xml
+install(FILES com.github.maliit.keyboard2.metainfo.xml
         DESTINATION share/metainfo)
 
 # Translations
@@ -406,11 +406,14 @@ if(enable-tests)
 
         target_link_libraries(${name} test-utils maliit-keyboard-common ${_libs})
 
+        target_compile_definitions(${name} PRIVATE ${maliit-keyboard-definitions})
+
         add_test(${name} ${name})
 
         set(test_targets ${test_targets} ${name} PARENT_SCOPE)
     endfunction()
 
+    create_test(ut_keyboardgeometry)
     create_test(ut_languagefeatures)
     create_test(ut_repeat-backspace
             tests/unittests/common/wordengineprobe.cpp
@@ -425,7 +428,17 @@ if(enable-tests)
             tests/unittests/ut_word-candidates/wordengineprobe.h)
     create_test(ut_wordengine)
 
+    # Compile GSettings schemas for unit tests
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/schemas/gschemas.compiled
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/schemas
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/data/schemas/org.maliit.keyboard2.maliit.gschema.xml ${CMAKE_BINARY_DIR}/schemas/
+            COMMAND glib-compile-schemas ${CMAKE_BINARY_DIR}/schemas
+            DEPENDS ${CMAKE_SOURCE_DIR}/data/schemas/org.maliit.keyboard2.maliit.gschema.xml)
+    add_custom_target(compile_schemas ALL DEPENDS ${CMAKE_BINARY_DIR}/schemas/gschemas.compiled)
+    add_dependencies(test-utils compile_schemas)
+
     set_property(TEST ${test_targets} PROPERTY ENVIRONMENT
-            MALIIT_PLUGINS_DATADIR=${CMAKE_SOURCE_DIR}/data)
+            MALIIT_PLUGINS_DATADIR=${CMAKE_SOURCE_DIR}/data
+            GSETTINGS_SCHEMA_DIR=${CMAKE_BINARY_DIR}/schemas)
 
 endif()

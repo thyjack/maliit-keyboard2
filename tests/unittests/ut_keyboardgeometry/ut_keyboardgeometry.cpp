@@ -27,10 +27,15 @@
  *
  */
 
-#include "plugin/keyboardgeometry.h"
-
 #include <QtCore>
+#include <QtGui>
+#include <QtQuick>
 #include <QtTest>
+
+#include "plugin/keyboardgeometry.h"
+#include "plugin/inputmethod.h"
+#include "plugin/inputmethod_p.h"
+#include "common/inputmethodhostprobe.h"
 
 namespace MaliitKeyboard {
 
@@ -145,6 +150,45 @@ private:
         m_geometry->setShown(show);
         QCOMPARE(m_geometry->shown(), show);
         QCOMPARE(spy.count(), 1);
+    }
+
+    Q_SLOT void testScreenGeometryChanges()
+    {
+        InputMethodHostProbe host;
+        InputMethod inputMethod(&host);
+        InputMethodPrivate *d = inputMethod.d_func();
+
+        QVERIFY(d->view != nullptr);
+
+        QScreen *screen = d->view->screen();
+        if (!screen) {
+            screen = QGuiApplication::primaryScreen();
+        }
+        QVERIFY(screen != nullptr);
+
+        // Verify initial geometry matches the screen's geometry
+        QCOMPARE(d->view->geometry(), screen->geometry());
+
+        // Simulate geometry change on screen
+        QRect originalGeometry = screen->geometry();
+        QRect newGeometry(originalGeometry.x(), originalGeometry.y(),
+                          originalGeometry.width() / 2, originalGeometry.height() / 2);
+
+        Q_EMIT screen->geometryChanged(newGeometry);
+
+        QCoreApplication::processEvents();
+
+        // Check if view was resized to match the new screen geometry
+        QCOMPARE(d->view->geometry(), newGeometry);
+
+        // Simulate screenChanged signal
+        Q_EMIT d->view->screenChanged(screen);
+
+        QCoreApplication::processEvents();
+
+        // Restore original geometry
+        Q_EMIT screen->geometryChanged(originalGeometry);
+        QCoreApplication::processEvents();
     }
 };
 

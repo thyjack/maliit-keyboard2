@@ -41,12 +41,17 @@
 
 class InputMethodPrivate;
 
+namespace MaliitKeyboard {
+class TestKeyboardGeometry;
+}
+
 class InputMethod
     : public MAbstractInputMethod
 {
     Q_OBJECT
     Q_DISABLE_COPY(InputMethod)
     Q_DECLARE_PRIVATE(InputMethod)
+    friend class MaliitKeyboard::TestKeyboardGeometry;
 
     Q_PROPERTY(TextContentType contentType READ contentType WRITE setContentType NOTIFY contentTypeChanged)
     Q_PROPERTY(QStringList enabledLanguages READ enabledLanguages NOTIFY enabledLanguagesChanged)

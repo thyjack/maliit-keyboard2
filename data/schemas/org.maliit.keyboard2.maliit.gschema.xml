@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.maliit.keyboard.maliit" path="/org/maliit/keyboard/maliit/">
+  <schema id="org.maliit.keyboard2.maliit" path="/org/maliit/keyboard2/maliit/">
     <key name="active-language" type="s">
       <summary>Active language</summary>
       <description>Currently active language, selected by user in the keyboard language menu</description>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="inputmethod">
-  <id>com.github.maliit.keyboard</id>
-  <name>Maliit Keyboard</name>
+  <id>com.github.maliit.keyboard2</id>
+  <name>Maliit Keyboard 2</name>
   <summary>A virtual keyboard for touch devices</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-3.0-only</project_license>
@@ -11,7 +11,7 @@
     <p>Beyond typing, it supports word correction and prediction, multitouch, different layouts, emoji and styling.</p>
   </description>
   <provides>
-    <binary>maliit-keyboard</binary>
+    <binary>maliit-keyboard2</binary>
   </provides>
 </component>
 

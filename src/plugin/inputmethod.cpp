@@ -46,6 +46,8 @@
 #include <maliit/namespace.h>
 
 #include <QGuiApplication>
+#include <QScreen>
+
 
 
 class MImUpdateEvent;
@@ -145,11 +147,22 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     } else {
         d->view->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
     }
-    d->view->setGeometry(qGuiApp->primaryScreen()->geometry());
-    connect(qGuiApp->primaryScreen(), &QScreen::geometryChanged,
-            this, [this, d](const QRect &geometry) {
-        d->view->setGeometry(geometry);
-    });
+    auto updateScreenGeometry = [this, d](QScreen *screen) {
+        if (!screen) {
+            screen = QGuiApplication::primaryScreen();
+        }
+        if (screen) {
+            QObject::disconnect(d->screenGeometryConnection);
+            d->screenGeometryConnection = connect(screen, &QScreen::geometryChanged,
+                                                  this, [d](const QRect &geometry) {
+                d->view->setGeometry(geometry);
+            });
+            d->view->setGeometry(screen->geometry());
+        }
+    };
+
+    connect(d->view, &QWindow::screenChanged, this, updateScreenGeometry);
+    updateScreenGeometry(d->view->screen());
 }
 
 InputMethod::~InputMethod() = default;

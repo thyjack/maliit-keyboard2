@@ -53,7 +53,7 @@ typedef QScopedPointer<Maliit::Plugins::AbstractPluginSetting> ScopedSetting;
 typedef QSharedPointer<MKeyOverride> SharedOverride;
 typedef QMap<QString, SharedOverride>::const_iterator OverridesIterator;
 
-QQuickView *createWindow(MAbstractInputMethodHost *host)
+inline QQuickView *createWindow(MAbstractInputMethodHost *host)
 {
     QScopedPointer<QQuickView> view(new QQuickView);
 
@@ -67,15 +67,21 @@ QQuickView *createWindow(MAbstractInputMethodHost *host)
     return view.take();
 }
 
+namespace MaliitKeyboard {
+class TestKeyboardGeometry;
+}
+
 class InputMethodPrivate
 {
 public:
+    friend class MaliitKeyboard::TestKeyboardGeometry;
     InputMethod* q;
     Editor editor;
     SharedOverride actionKeyOverrider;
     Logic::EventHandler event_handler;
     MAbstractInputMethodHost* host;
     QQuickView* view;
+    QMetaObject::Connection screenGeometryConnection;
 
     bool autocapsEnabled;
     bool wordEngineEnabled;
